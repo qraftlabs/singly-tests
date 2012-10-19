@@ -1,0 +1,103 @@
+﻿<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx">
+  <edmx:DataServices m:DataServiceVersion="1.0" m:MaxDataServiceVersion="3.0" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    <Schema Namespace="Singly" xmlns="http://schemas.microsoft.com/ado/2006/04/edm">
+      <EntityType Name="Type">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false" />
+        <Property Name="Date" Type="Edm.DateTime" Nullable="false" />
+        <Property Name="Data" Type="Edm.String" />
+      </EntityType>
+      <EntityType Name="Photo" BaseType="Singly.Type">
+        <Property Name="Oembed" Type="Singly.PhotoOembed" Nullable="false" />
+      </EntityType>
+      <ComplexType Name="PhotoOembed">
+        <Property Name="Url" Type="Edm.String" />
+        <Property Name="Width" Type="Edm.Int32" />
+        <Property Name="Height" Type="Edm.Int32" />
+        <Property Name="Type" Type="Edm.String" />
+        <Property Name="Version" Type="Edm.String" />
+        <Property Name="Title" Type="Edm.String" />
+        <Property Name="AuthorName" Type="Edm.String" />
+        <Property Name="AuthorUrl" Type="Edm.String" />
+        <Property Name="ProviderName" Type="Edm.String" />
+        <Property Name="ProviderUrl" Type="Edm.String" />
+        <Property Name="CacheAge" Type="Edm.String" />
+        <Property Name="ThumbnailUrl" Type="Edm.String" />
+        <Property Name="ThumbnailWidth" Type="Edm.Int32" />
+        <Property Name="ThumbnailHeight" Type="Edm.Int32" />
+      </ComplexType>
+      <EntityType Name="Contact" BaseType="Singly.Type">
+        <Property Name="Oembed" Type="Singly.ContactOembed" Nullable="false" />
+      </EntityType>
+      <ComplexType Name="ContactOembed">
+        <Property Name="Type" Type="Edm.String" />
+        <Property Name="Version" Type="Edm.String" />
+        <Property Name="Title" Type="Edm.String" />
+        <Property Name="Description" Type="Edm.String" />
+        <Property Name="Url" Type="Edm.String" />
+        <Property Name="ThumbnailUrl" Type="Edm.String" />
+        <Property Name="ProviderName" Type="Edm.String" />
+        <Property Name="SourceName" Type="Edm.String" />
+      </ComplexType>
+      <ComplexType Name="Oembed">
+        <Property Name="Type" Type="Edm.String" />
+        <Property Name="Version" Type="Edm.String" />
+        <Property Name="Title" Type="Edm.String" />
+        <Property Name="AuthorName" Type="Edm.String" />
+        <Property Name="AuthorUrl" Type="Edm.String" />
+        <Property Name="ProviderName" Type="Edm.String" />
+        <Property Name="ProviderUrl" Type="Edm.String" />
+        <Property Name="CacheAge" Type="Edm.String" />
+        <Property Name="ThumbnailUrl" Type="Edm.String" />
+        <Property Name="ThumbnailWidth" Type="Edm.Int32" />
+        <Property Name="ThumbnailHeight" Type="Edm.Int32" />
+        <Property Name="SourceName" Type="Edm.String" />
+      </ComplexType>
+      <EntityType Name="Checking" BaseType="Singly.Type">
+        <Property Name="Oembed" Type="Singly.Oembed" Nullable="false" />
+      </EntityType>
+      <EntityType Name="News" BaseType="Singly.Type">
+        <Property Name="Oembed" Type="Singly.Oembed" Nullable="false" />
+      </EntityType>
+      <EntityType Name="Video" BaseType="Singly.Type">
+        <Property Name="Oembed" Type="Singly.VideoOembed" Nullable="false" />
+      </EntityType>
+      <ComplexType Name="VideoOembed">
+        <Property Name="Html" Type="Edm.String" />
+        <Property Name="Width" Type="Edm.Int32" />
+        <Property Name="Height" Type="Edm.Int32" />
+        <Property Name="Type" Type="Edm.String" />
+        <Property Name="Version" Type="Edm.String" />
+        <Property Name="Title" Type="Edm.String" />
+        <Property Name="AuthorName" Type="Edm.String" />
+        <Property Name="AuthorUrl" Type="Edm.String" />
+        <Property Name="ProviderName" Type="Edm.String" />
+        <Property Name="ProviderUrl" Type="Edm.String" />
+        <Property Name="CacheAge" Type="Edm.String" />
+        <Property Name="ThumbnailUrl" Type="Edm.String" />
+        <Property Name="ThumbnailWidth" Type="Edm.Int32" />
+        <Property Name="ThumbnailHeight" Type="Edm.Int32" />
+        <Property Name="SourceName" Type="Edm.String" />
+      </ComplexType>
+      <ComplexType Name="TextOembed">
+        <Property Name="Text" Type="Edm.String" />
+        <Property Name="SourceName" Type="Edm.String" />
+        <Property Name="Type" Type="Edm.String" />
+        <Property Name="Version" Type="Edm.String" />
+      </ComplexType>
+      <EntityType Name="Status" BaseType="Singly.Type">
+        <Property Name="Oembed" Type="Singly.TextOembed" Nullable="false" />
+      </EntityType>
+      <EntityContainer Name="SinglyContext" m:IsDefaultEntityContainer="true">
+        <EntitySet Name="Photos" EntityType="Singly.Photo" />
+        <EntitySet Name="Contacts" EntityType="Singly.Contact" />
+        <EntitySet Name="Checkins" EntityType="Singly.Checking" />
+        <EntitySet Name="News" EntityType="Singly.News" />
+        <EntitySet Name="Videos" EntityType="Singly.Video" />
+        <EntitySet Name="Statuses" EntityType="Singly.Status" />
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
