@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Data.Services.Client;
 
 namespace Singly.Tests
 {
@@ -58,6 +59,61 @@ namespace Singly.Tests
             Assert.AreEqual(1, list.Length);
         }
 
+        [TestMethod]
+        public void Should_Query_With_LessThan()
+        {
+            var list = Context
+                .Statuses
+                .Where(s => s.Date < DateTime.Now.AddDays(10))
+                .ToArray();
+
+            Assert.IsNotNull(list);
+            Assert.IsTrue(list.Length > 0);
+        }
+ 
+        [TestMethod]
+        [ExpectedException(typeof(DataServiceQueryException))]
+        public void Should_Not_Get_By_Id()
+        {
+            try
+            {
+                Context.Statuses.Where(s => s.Id == "foo").ToArray();
+            }
+            catch (System.Data.Services.Client.DataServiceClientException e)
+            {
+                /* TODO: The OData client is not deserializing the error as per the OData JSON
+                 * light specification: http://www.odata.org/media/30002/OData%20JSON%20Verbose%20Format.html
+                 *
+                 * Assert.AreEqual("resource path is not valid. get by id is not supported yet.", e.Message);
+                 */
+                return;
+            }
+
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DataServiceQueryException))]
+        public void Should_Receive_MeaningfulError_When_Unsupported_Operator()
+        {
+            try
+            {
+                Context.Statuses.Where(s => s.Data == "foo").ToArray();
+            }
+            catch (DataServiceQueryException e)
+            {
+                /* TODO: The OData client is not deserializing the error as per the OData JSON
+                 * light specification: http://www.odata.org/media/30002/OData%20JSON%20Verbose%20Format.html
+                 *
+                 * {"error":{"code":"query-parse-error","message":{"lang":"en-us","value":"Unable to parse OData query. operator eq not supported yet."}}}
+                 *  
+                 * Assert.AreEqual("Unable to parse OData query. operator eq not supported yet.", e.Message); 
+                 */
+                return;
+            }
+
+            Assert.Fail();
+        }
         /*
          * Serializationi Tests
          */
@@ -101,5 +157,7 @@ namespace Singly.Tests
 
             Assert.IsNotNull(list);
         }
+
+
     }
 }
