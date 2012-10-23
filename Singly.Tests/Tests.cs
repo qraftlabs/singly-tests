@@ -88,6 +88,21 @@ namespace Singly.Tests
             Assert.IsNotNull(list);
             Assert.IsTrue(list.Length > 0);
         }
+
+        [TestMethod]
+        public void Should_Query_With_LessThanAndGreaterThan()
+        {
+            // all the tweets done from 2012-07-23 and 24 (3 in total)
+            var list = context
+                .Statuses
+                .Where(s => s.Date > new DateTime(2012, 07, 23) &&
+                            s.Date < new DateTime(2012, 07, 24))
+                .ToArray();
+
+            list.ToList().ForEach(a => Console.WriteLine(a.Oembed.Text));
+            Assert.IsNotNull(list);
+            Assert.AreEqual(3, list.Length);
+        }
  
         [TestMethod]
         [ExpectedException(typeof(DataServiceQueryException))]
