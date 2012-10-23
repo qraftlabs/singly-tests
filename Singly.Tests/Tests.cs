@@ -80,7 +80,7 @@ namespace Singly.Tests
         [TestMethod]
         public void Should_Query_With_LessThan()
         {
-            var list = Context
+            var list = context
                 .Statuses
                 .Where(s => s.Date < DateTime.Now.AddDays(10))
                 .ToArray();
@@ -95,7 +95,7 @@ namespace Singly.Tests
         {
             try
             {
-                Context.Statuses.Where(s => s.Id == "foo").ToArray();
+                context.Statuses.Where(s => s.Id == "foo").ToArray();
             }
             catch (System.Data.Services.Client.DataServiceClientException e)
             {
@@ -104,6 +104,7 @@ namespace Singly.Tests
                  *
                  * Assert.AreEqual("resource path is not valid. get by id is not supported yet.", e.Message);
                  */
+                Assert.IsTrue(e.InnerException.Message.Contains("resource path is not valid. get by id is not supported yet."));
                 return;
             }
 
@@ -111,12 +112,11 @@ namespace Singly.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DataServiceQueryException))]
         public void Should_Receive_MeaningfulError_When_Unsupported_Operator()
         {
             try
             {
-                Context.Statuses.Where(s => s.Data == "foo").ToArray();
+                context.Statuses.Where(s => s.Data == "foo").ToArray();
             }
             catch (DataServiceQueryException e)
             {
@@ -127,6 +127,7 @@ namespace Singly.Tests
                  *  
                  * Assert.AreEqual("Unable to parse OData query. operator eq not supported yet.", e.Message); 
                  */
+                Assert.IsTrue(e.InnerException.Message.Contains("Unable to parse OData query. operator eq not supported yet."));
                 return;
             }
 
