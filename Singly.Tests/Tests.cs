@@ -99,20 +99,18 @@ namespace Singly.Tests
                             s.Date < new DateTime(2012, 07, 24))
                 .ToArray();
 
-            list.ToList().ForEach(a => Console.WriteLine(a.Oembed.Text));
             Assert.IsNotNull(list);
             Assert.AreEqual(3, list.Length);
         }
  
         [TestMethod]
-        [ExpectedException(typeof(DataServiceQueryException))]
         public void Should_Not_Get_By_Id()
         {
             try
             {
                 context.Statuses.Where(s => s.Id == "foo").ToArray();
             }
-            catch (System.Data.Services.Client.DataServiceClientException e)
+            catch (System.Data.Services.Client.DataServiceQueryException e)
             {
                 /* TODO: The OData client is not deserializing the error as per the OData JSON
                  * light specification: http://www.odata.org/media/30002/OData%20JSON%20Verbose%20Format.html
