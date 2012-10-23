@@ -9,15 +9,15 @@ namespace Singly.Tests
     [TestClass]
     public class Tests
     {
-        public Singly.SinglyContext Context { get; set; }
+        private Singly.SinglyContext context { get; set; }
 
         [TestInitialize]
         public void SetUp()
         {
-            Context = new Singly.SinglyContext(new Uri("http://localhost:8778/types"));
-            Context.UseJsonFormatWithDefaultServiceModel();
-            Context.IgnoreMissingProperties = true;
-            Context.SendingRequest += new EventHandler<System.Data.Services.Client.SendingRequestEventArgs>(Context_SendingRequest);
+            context = new Singly.SinglyContext(new Uri("http://localhost:8778/types"));
+            context.UseJsonFormatWithDefaultServiceModel();
+            context.IgnoreMissingProperties = true;
+            context.SendingRequest += new EventHandler<System.Data.Services.Client.SendingRequestEventArgs>(Context_SendingRequest);
         }
 
         void Context_SendingRequest(object sender, System.Data.Services.Client.SendingRequestEventArgs e)
@@ -28,17 +28,23 @@ namespace Singly.Tests
         [TestMethod]
         public void Should_Query_Statuses()
         {
-            var list = Context.Statuses.ToArray();
+            var list = context.Statuses.ToArray();
 
             Assert.IsNotNull(list);
             Assert.IsTrue(list.Length > 0);
-            Assert.IsTrue(list[0].Oembed.Text.Length > 0);
+            Assert.AreEqual("{\"created_at\":\"Mon Jul 23 18:17:32 +0000 2012\",\"id\":227467496784011260,\"id_str\":\"227467496784011266\",\"text\":\"Does anybody know a good Fiddler-like tool for linux?\",\"source\":\"web\",\"truncated\":false,\"in_reply_to_status_id\":null,\"in_reply_to_status_id_str\":null,\"in_reply_to_user_id\":null,\"in_reply_to_user_id_str\":null,\"in_reply_to_screen_name\":null,\"user\":{\"id\":67699724,\"id_str\":\"67699724\",\"name\":\"Gustavo Machado\",\"screen_name\":\"machadogj\",\"location\":\"Buenos Aires\",\"url\":null,\"description\":\"\",\"protected\":false,\"followers_count\":80,\"friends_count\":199,\"listed_count\":7,\"created_at\":\"Fri Aug 21 19:47:50 +0000 2009\",\"favourites_count\":2,\"utc_offset\":-10800,\"time_zone\":\"Buenos Aires\",\"geo_enabled\":false,\"verified\":false,\"statuses_count\":472,\"lang\":\"en\",\"contributors_enabled\":false,\"is_translator\":false,\"profile_background_color\":\"709397\",\"profile_background_image_url\":\"http://a0.twimg.com/images/themes/theme6/bg.gif\",\"profile_background_image_url_https\":\"https://si0.twimg.com/images/themes/theme6/bg.gif\",\"profile_background_tile\":false,\"profile_image_url\":\"http://a0.twimg.com/profile_images/2562524889/nsmp7hxoxu6onlauicb9_normal.jpeg\",\"profile_image_url_https\":\"https://si0.twimg.com/profile_images/2562524889/nsmp7hxoxu6onlauicb9_normal.jpeg\",\"profile_link_color\":\"FF3300\",\"profile_sidebar_border_color\":\"86A4A6\",\"profile_sidebar_fill_color\":\"A0C5C7\",\"profile_text_color\":\"333333\",\"profile_use_background_image\":true,\"default_profile\":false,\"default_profile_image\":false,\"following\":false,\"follow_request_sent\":false,\"notifications\":false},\"geo\":null,\"coordinates\":null,\"place\":null,\"contributors\":null,\"retweet_count\":0,\"entities\":{\"hashtags\":[],\"urls\":[],\"user_mentions\":[]},\"favorited\":false,\"retweeted\":false}",
+                              list.Last().Data);
+            Assert.AreEqual(new DateTime(2012, 07, 23, 18, 17, 32), list.Last().Date);
+            Assert.AreEqual("twitter", list.Last().Oembed.SourceName);
+            Assert.AreEqual("Does anybody know a good Fiddler-like tool for linux?", list.Last().Oembed.Text);
+            Assert.AreEqual("text", list.Last().Oembed.Type);
+            Assert.AreEqual("1.0", list.Last().Oembed.Version);
         }
 
         [TestMethod]
         public void Should_Query_With_Top()
         {
-            var list = Context.Statuses.Take(2).ToArray();
+            var list = context.Statuses.Take(2).ToArray();
 
             Assert.IsNotNull(list);
             Assert.AreEqual(2, list.Length);
@@ -47,15 +53,27 @@ namespace Singly.Tests
         [TestMethod]
         public void Should_Query_With_Date()
         {
-            var full = Context.Statuses.Take(3).ToArray();
+            var full = context.Statuses.Take(3).ToArray();
             var second = full[0].Date;
 
-            var list = Context
+            var list = context
                         .Statuses
                         .Where(s => s.Date > second)
                         .ToArray();
 
             Assert.AreEqual(1, list.Length);
+        }
+
+        [TestMethod]
+        public void Should_Query_With_Contains()
+        {
+            // search mentions
+            var list = context
+                        .Statuses
+                        .Where(s => s.Data.Contains("@woloski"))
+                        .ToArray();
+
+            Assert.AreEqual(6, list.Length);
         }
 
         /*
@@ -65,7 +83,7 @@ namespace Singly.Tests
         [TestMethod]
         public void Should_Query_Checkins()
         {
-            var list = Context.Checkins.ToArray();
+            var list = context.Checkins.ToArray();
 
             Assert.IsNotNull(list);
         }
@@ -73,33 +91,93 @@ namespace Singly.Tests
         [TestMethod]
         public void Should_Query_Contacts()
         {
-            var list = Context.Contacts.ToArray();
+            var list = context.Contacts.ToArray();
 
             Assert.IsNotNull(list);
+            Assert.AreEqual("{\"id_str\":\"240751001\",\"profile_background_color\":\"FFFFFF\",\"id\":240751001,\"notifications\":false,\"url\":\"http://nodester.com\",\"follow_request_sent\":false,\"created_at\":\"Thu Jan 20 17:16:40 +0000 2011\",\"screen_name\":\"Nodester\",\"profile_background_image_url\":\"http://a0.twimg.com/profile_background_images/338956509/nodesterrocket.png\",\"statuses_count\":2986,\"default_profile_image\":false,\"verified\":false,\"profile_link_color\":\"0084B4\",\"utc_offset\":-25200,\"favourites_count\":23,\"friends_count\":2541,\"name\":\"Nodester\",\"lang\":\"en\",\"profile_use_background_image\":false,\"location\":\"NodeJS PaaS\",\"protected\":false,\"profile_text_color\":\"333333\",\"profile_image_url\":\"http://a0.twimg.com/profile_images/1543095199/ndoesterrocket_normal.png\",\"profile_image_url_https\":\"https://si0.twimg.com/profile_images/1543095199/ndoesterrocket_normal.png\",\"description\":\"NodeJS Open Source Hosting Platform\",\"profile_sidebar_border_color\":\"C0DEED\",\"default_profile\":false,\"followers_count\":2627,\"is_translator\":false,\"following\":true,\"contributors_enabled\":false,\"profile_background_image_url_https\":\"https://si0.twimg.com/profile_background_images/338956509/nodesterrocket.png\",\"time_zone\":\"Arizona\",\"profile_background_tile\":false,\"profile_sidebar_fill_color\":\"DDEEF6\",\"geo_enabled\":false,\"listed_count\":167,\"status\":{\"favorited\":false,\"in_reply_to_status_id_str\":null,\"coordinates\":null,\"in_reply_to_screen_name\":null,\"in_reply_to_user_id_str\":null,\"geo\":null,\"entities\":{\"user_mentions\":[],\"urls\":[],\"hashtags\":[]},\"place\":null,\"retweeted\":false,\"in_reply_to_status_id\":null,\"source\":\"<a href=\\\"http://www.tweetdeck.com\\\" rel=\\\"nofollow\\\">TweetDeck</a>\",\"id_str\":\"259273047779966977\",\"contributors\":null,\"retweet_count\":3,\"id\":259273047779966980,\"in_reply_to_user_id\":null,\"truncated\":false,\"text\":\"Hack the planet!\",\"created_at\":\"Fri Oct 19 12:41:26 +0000 2012\"}}"
+                            , list.Last().Data);
+            Assert.AreEqual(new DateTime(2011, 01, 20, 17, 16, 40), list.Last().Date);
+            Assert.AreEqual("NodeJS Open Source Hosting Platform", list.Last().Oembed.Description);
+            Assert.AreEqual("twitter", list.Last().Oembed.ProviderName);
+            Assert.AreEqual("twitter", list.Last().Oembed.SourceName);
+            Assert.AreEqual("https://si0.twimg.com/profile_images/1543095199/ndoesterrocket.png", list.Last().Oembed.ThumbnailUrl);
+            Assert.AreEqual("Nodester", list.Last().Oembed.Title);
+            Assert.AreEqual("contact", list.Last().Oembed.Type);
+            Assert.AreEqual("http://twitter.com/Nodester", list.Last().Oembed.Url);
+            Assert.AreEqual("1.0", list.Last().Oembed.Version);
         }
 
         [TestMethod]
         public void Should_Query_News()
         {
-            var list = Context.News.ToArray();
+            var list = context.News.ToArray();
 
             Assert.IsNotNull(list);
+            Assert.AreEqual("{\"created_at\":\"Fri Jul 13 17:56:08 +0000 2012\",\"id\":223838232570372100,\"id_str\":\"223838232570372096\",\"text\":\"RT @ChrisLove: I pushed my 1st GitHub repository http://t.co/VFre4264 Used GitHub for Windows, The Code my tiles blog post http://t.co/v ...\",\"source\":\"web\",\"truncated\":false,\"in_reply_to_status_id\":null,\"in_reply_to_status_id_str\":null,\"in_reply_to_user_id\":null,\"in_reply_to_user_id_str\":null,\"in_reply_to_screen_name\":null,\"user\":{\"id\":67699724,\"id_str\":\"67699724\",\"name\":\"Gustavo Machado\",\"screen_name\":\"machadogj\",\"location\":\"Buenos Aires\",\"url\":null,\"description\":\"\",\"protected\":false,\"followers_count\":80,\"friends_count\":199,\"listed_count\":7,\"created_at\":\"Fri Aug 21 19:47:50 +0000 2009\",\"favourites_count\":2,\"utc_offset\":-10800,\"time_zone\":\"Buenos Aires\",\"geo_enabled\":false,\"verified\":false,\"statuses_count\":472,\"lang\":\"en\",\"contributors_enabled\":false,\"is_translator\":false,\"profile_background_color\":\"709397\",\"profile_background_image_url\":\"http://a0.twimg.com/images/themes/theme6/bg.gif\",\"profile_background_image_url_https\":\"https://si0.twimg.com/images/themes/theme6/bg.gif\",\"profile_background_tile\":false,\"profile_image_url\":\"http://a0.twimg.com/profile_images/2562524889/nsmp7hxoxu6onlauicb9_normal.jpeg\",\"profile_image_url_https\":\"https://si0.twimg.com/profile_images/2562524889/nsmp7hxoxu6onlauicb9_normal.jpeg\",\"profile_link_color\":\"FF3300\",\"profile_sidebar_border_color\":\"86A4A6\",\"profile_sidebar_fill_color\":\"A0C5C7\",\"profile_text_color\":\"333333\",\"profile_use_background_image\":true,\"default_profile\":false,\"default_profile_image\":false,\"following\":false,\"follow_request_sent\":false,\"notifications\":false},\"geo\":null,\"coordinates\":null,\"place\":null,\"contributors\":null,\"retweeted_status\":{\"created_at\":\"Fri Jul 13 17:31:09 +0000 2012\",\"id\":223831948739624960,\"id_str\":\"223831948739624960\",\"text\":\"I pushed my 1st GitHub repository http://t.co/VFre4264 Used GitHub for Windows, The Code my tiles blog post http://t.co/vQaH6996\",\"source\":\"<a href=\\\"http://www.metrotwit.com/\\\" rel=\\\"nofollow\\\">MetroTwit</a>\",\"truncated\":false,\"in_reply_to_status_id\":null,\"in_reply_to_status_id_str\":null,\"in_reply_to_user_id\":null,\"in_reply_to_user_id_str\":null,\"in_reply_to_screen_name\":null,\"user\":{\"id\":5658652,\"id_str\":\"5658652\",\"name\":\"Chris Love\",\"screen_name\":\"ChrisLove\",\"location\":\"Here\",\"url\":\"http://www.ProfessionalASPNET.com\",\"description\":\"Passionate about Mobile Web, ASP.NET, jQuery, HTML5, CSS3\",\"protected\":false,\"followers_count\":2497,\"friends_count\":1401,\"listed_count\":157,\"created_at\":\"Mon Apr 30 16:20:57 +0000 2007\",\"favourites_count\":32,\"utc_offset\":-18000,\"time_zone\":\"Eastern Time (US & Canada)\",\"geo_enabled\":true,\"verified\":false,\"statuses_count\":25446,\"lang\":\"en\",\"contributors_enabled\":false,\"is_translator\":false,\"profile_background_color\":\"CEECEC\",\"profile_background_image_url\":\"http://a0.twimg.com/profile_background_images/2430769/starblazers-warping.jpg\",\"profile_background_image_url_https\":\"https://si0.twimg.com/profile_background_images/2430769/starblazers-warping.jpg\",\"profile_background_tile\":true,\"profile_image_url\":\"http://a0.twimg.com/profile_images/492735348/Chris_Love_Close_Up_normal_normal.jpg\",\"profile_image_url_https\":\"https://si0.twimg.com/profile_images/492735348/Chris_Love_Close_Up_normal_normal.jpg\",\"profile_link_color\":\"0000FF\",\"profile_sidebar_border_color\":\"87BC44\",\"profile_sidebar_fill_color\":\"E0FF92\",\"profile_text_color\":\"000000\",\"profile_use_background_image\":true,\"default_profile\":false,\"default_profile_image\":false,\"following\":null,\"follow_request_sent\":false,\"notifications\":null},\"geo\":null,\"coordinates\":null,\"place\":null,\"contributors\":null,\"retweet_count\":2,\"entities\":{\"hashtags\":[],\"urls\":[{\"url\":\"http://t.co/VFre4264\",\"expanded_url\":\"http://bit.ly/MqqRME\",\"display_url\":\"bit.ly/MqqRME\",\"indices\":[34,54]},{\"url\":\"http://t.co/vQaH6996\",\"expanded_url\":\"http://bit.ly/MqqUYK\",\"display_url\":\"bit.ly/MqqUYK\",\"indices\":[108,128]}],\"user_mentions\":[]},\"favorited\":false,\"retweeted\":false,\"possibly_sensitive\":false},\"retweet_count\":2,\"entities\":{\"hashtags\":[],\"urls\":[{\"url\":\"http://t.co/VFre4264\",\"expanded_url\":\"http://bit.ly/MqqRME\",\"display_url\":\"bit.ly/MqqRME\",\"indices\":[49,69]}],\"user_mentions\":[{\"screen_name\":\"ChrisLove\",\"name\":\"Chris Love\",\"id\":5658652,\"id_str\":\"5658652\",\"indices\":[3,13]}]},\"favorited\":false,\"retweeted\":false,\"possibly_sensitive\":false}", 
+                            list.Last().Data);
+            Assert.AreEqual(new DateTime(2012, 07, 13, 17, 56, 08), list.Last().Date);
+            Assert.AreEqual(null, list.Last().Oembed.AuthorName);
+            Assert.AreEqual(null, list.Last().Oembed.AuthorUrl);
+            Assert.AreEqual(null, list.Last().Oembed.CacheAge);
+            Assert.AreEqual("Github", list.Last().Oembed.ProviderName);
+            Assert.AreEqual("https://github.com", list.Last().Oembed.ProviderUrl);
+            Assert.AreEqual("twitter", list.Last().Oembed.SourceName);
+            Assert.AreEqual(140, list.Last().Oembed.ThumbnailHeight);
+            Assert.AreEqual("https://a248.e.akamai.net/assets.github.com/images/gravatars/gravatar-140.png?1329275856", list.Last().Oembed.ThumbnailUrl);
+            Assert.AreEqual(140, list.Last().Oembed.ThumbnailWidth);
+            Assert.AreEqual("4square-Home", list.Last().Oembed.Title);
+            Assert.AreEqual("link", list.Last().Oembed.Type);
+            Assert.AreEqual("1.0", list.Last().Oembed.Version);
         }
 
         [TestMethod]
         public void Should_Query_Photos()
         {
-            var list = Context.Photos.ToArray();
+            var list = context.Photos.ToArray();
 
             Assert.IsNotNull(list);
+            Assert.IsTrue(list.Length > 0);
+
+            Assert.AreEqual("{\"created_at\":\"Wed Sep 07 14:43:05 +0000 2011\",\"id\":111449411963457540,\"id_str\":\"111449411963457536\",\"text\":\"Check out my result from Speedtest.net! http://t.co/NvOwpbi\",\"source\":\"<a href=\\\"http://twitter.com/tweetbutton\\\" rel=\\\"nofollow\\\">Tweet Button</a>\",\"truncated\":false,\"in_reply_to_status_id\":null,\"in_reply_to_status_id_str\":null,\"in_reply_to_user_id\":null,\"in_reply_to_user_id_str\":null,\"in_reply_to_screen_name\":null,\"user\":{\"id\":67699724,\"id_str\":\"67699724\",\"name\":\"Gustavo Machado\",\"screen_name\":\"machadogj\",\"location\":\"Buenos Aires\",\"url\":null,\"description\":\"\",\"protected\":false,\"followers_count\":80,\"friends_count\":199,\"listed_count\":7,\"created_at\":\"Fri Aug 21 19:47:50 +0000 2009\",\"favourites_count\":2,\"utc_offset\":-10800,\"time_zone\":\"Buenos Aires\",\"geo_enabled\":false,\"verified\":false,\"statuses_count\":472,\"lang\":\"en\",\"contributors_enabled\":false,\"is_translator\":false,\"profile_background_color\":\"709397\",\"profile_background_image_url\":\"http://a0.twimg.com/images/themes/theme6/bg.gif\",\"profile_background_image_url_https\":\"https://si0.twimg.com/images/themes/theme6/bg.gif\",\"profile_background_tile\":false,\"profile_image_url\":\"http://a0.twimg.com/profile_images/2562524889/nsmp7hxoxu6onlauicb9_normal.jpeg\",\"profile_image_url_https\":\"https://si0.twimg.com/profile_images/2562524889/nsmp7hxoxu6onlauicb9_normal.jpeg\",\"profile_link_color\":\"FF3300\",\"profile_sidebar_border_color\":\"86A4A6\",\"profile_sidebar_fill_color\":\"A0C5C7\",\"profile_text_color\":\"333333\",\"profile_use_background_image\":true,\"default_profile\":false,\"default_profile_image\":false,\"following\":false,\"follow_request_sent\":false,\"notifications\":false},\"geo\":null,\"coordinates\":null,\"place\":null,\"contributors\":null,\"retweet_count\":0,\"entities\":{\"hashtags\":[],\"urls\":[{\"url\":\"http://t.co/NvOwpbi\",\"expanded_url\":\"http://speedtest.net/result/1470802413.png\",\"display_url\":\"speedtest.net/result/1470802…\",\"indices\":[40,59]}],\"user_mentions\":[]},\"favorited\":false,\"retweeted\":false,\"possibly_sensitive\":false}",
+                             list.Last().Data);
+            Assert.AreEqual(new DateTime(2011, 09, 07, 14, 43, 05), list.Last().Date);
+            Assert.AreEqual(null, list.Last().Oembed.CacheAge);
+            Assert.AreEqual(135, list.Last().Oembed.Height);
+            Assert.AreEqual("Speedtest", list.Last().Oembed.ProviderName);
+            Assert.AreEqual("http://speedtest.net", list.Last().Oembed.ProviderUrl);
+            Assert.AreEqual(null, list.Last().Oembed.ThumbnailHeight);
+            Assert.AreEqual(null, list.Last().Oembed.ThumbnailUrl);
+            Assert.AreEqual(null, list.Last().Oembed.ThumbnailWidth);
+            Assert.AreEqual(null, list.Last().Oembed.Title);
+            Assert.AreEqual("http://speedtest.net/result/1470802413.png", list.Last().Oembed.Url);
+            Assert.AreEqual("1.0", list.Last().Oembed.Version);
+            Assert.AreEqual(300, list.Last().Oembed.Width);
         }
+
 
         [TestMethod]
         public void Should_Query_Videos()
         {
-            var list = Context.Videos.ToArray();
+            var list = context.Videos.ToArray();
 
-            Assert.IsNotNull(list);
+            Assert.AreEqual("{\"created_at\":\"Wed Oct 14 17:42:00 +0000 2009\",\"id\":4867311022,\"id_str\":\"4867311022\",\"text\":\"Echa un vistazo a este vídeo. -- Pearl Jam-Black http://bit.ly/68RlZ\",\"source\":\"web\",\"truncated\":false,\"in_reply_to_status_id\":null,\"in_reply_to_status_id_str\":null,\"in_reply_to_user_id\":null,\"in_reply_to_user_id_str\":null,\"in_reply_to_screen_name\":null,\"user\":{\"id\":67699724,\"id_str\":\"67699724\",\"name\":\"Gustavo Machado\",\"screen_name\":\"machadogj\",\"location\":\"Buenos Aires\",\"url\":null,\"description\":\"\",\"protected\":false,\"followers_count\":80,\"friends_count\":199,\"listed_count\":7,\"created_at\":\"Fri Aug 21 19:47:50 +0000 2009\",\"favourites_count\":2,\"utc_offset\":-10800,\"time_zone\":\"Buenos Aires\",\"geo_enabled\":false,\"verified\":false,\"statuses_count\":472,\"lang\":\"en\",\"contributors_enabled\":false,\"is_translator\":false,\"profile_background_color\":\"709397\",\"profile_background_image_url\":\"http://a0.twimg.com/images/themes/theme6/bg.gif\",\"profile_background_image_url_https\":\"https://si0.twimg.com/images/themes/theme6/bg.gif\",\"profile_background_tile\":false,\"profile_image_url\":\"http://a0.twimg.com/profile_images/2562524889/nsmp7hxoxu6onlauicb9_normal.jpeg\",\"profile_image_url_https\":\"https://si0.twimg.com/profile_images/2562524889/nsmp7hxoxu6onlauicb9_normal.jpeg\",\"profile_link_color\":\"FF3300\",\"profile_sidebar_border_color\":\"86A4A6\",\"profile_sidebar_fill_color\":\"A0C5C7\",\"profile_text_color\":\"333333\",\"profile_use_background_image\":true,\"default_profile\":false,\"default_profile_image\":false,\"following\":false,\"follow_request_sent\":false,\"notifications\":false},\"geo\":null,\"coordinates\":null,\"place\":null,\"contributors\":null,\"retweet_count\":0,\"entities\":{\"hashtags\":[],\"urls\":[],\"user_mentions\":[]},\"favorited\":false,\"retweeted\":false}",
+                                list.Last().Data);
+            Assert.AreEqual(new DateTime(2009, 10, 14, 17, 42, 00), list.Last().Date);
+            Assert.AreEqual("Nothingman54", list.Last().Oembed.AuthorName);
+            Assert.AreEqual("http://www.youtube.com/user/Nothingman54", list.Last().Oembed.AuthorUrl);
+            Assert.AreEqual(null, list.Last().Oembed.CacheAge);
+            Assert.AreEqual(344, list.Last().Oembed.Height);
+            Assert.AreEqual(null, list.Last().Oembed.Html);
+            Assert.AreEqual("YouTube", list.Last().Oembed.ProviderName);
+            Assert.AreEqual("http://www.youtube.com/", list.Last().Oembed.ProviderUrl);
+            Assert.AreEqual("twitter", list.Last().Oembed.SourceName);
+            Assert.AreEqual(360, list.Last().Oembed.ThumbnailHeight);
+            Assert.AreEqual("http://i2.ytimg.com/vi/AFVlJAi3Cso/hqdefault.jpg", list.Last().Oembed.ThumbnailUrl);
+            Assert.AreEqual(480, list.Last().Oembed.ThumbnailWidth);
+            Assert.AreEqual("Pearl Jam-Black", list.Last().Oembed.Title);
+            Assert.AreEqual("video", list.Last().Oembed.Type);
+            Assert.AreEqual("1.0", list.Last().Oembed.Version);
+            Assert.AreEqual(459, list.Last().Oembed.Width);
         }
     }
 }
