@@ -5,6 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Singly.Tests", "Singly.Test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{431AF9CF-D8E1-4F63-93E4-4D80F1936BFF}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		Local.testsettings = Local.testsettings
 		Singly.Tests.vsmdi = Singly.Tests.vsmdi
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
